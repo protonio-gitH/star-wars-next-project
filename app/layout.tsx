@@ -1,12 +1,14 @@
 import "@/styles/globals.css";
 import { Metadata } from "next";
 import clsx from "clsx";
+import React from "react";
 
 import { Providers } from "./providers";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import TheHeader from "@/components/TheHeader";
+import TheFooter from "@/components/TheFooter";
 
 export const metadata: Metadata = {
   title: {
@@ -36,15 +38,18 @@ export default function RootLayout({
       <head />
       <body
         className={clsx(
-          "min-h-screen bg-background font-sans antialiased",
+          "min-h-screen flex flex-col bg-background font-sans antialiased",
           fontSans.variable,
         )}
       >
         <Providers>
-          <TheHeader />
-          <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
-            {children}
-          </main>
+          <div className="relative flex flex-col h-screen">
+            <TheHeader />
+            <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+              {children}
+            </main>
+            <TheFooter />
+          </div>
         </Providers>
       </body>
     </html>
