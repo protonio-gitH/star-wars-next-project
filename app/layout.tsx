@@ -9,6 +9,7 @@ import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import TheHeader from "@/components/TheHeader";
 import TheFooter from "@/components/TheFooter";
+import { ModalProvider } from "@/components/ModalProvider";
 
 export const metadata: Metadata = {
   title: {
@@ -33,6 +34,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
   return (
     <html suppressHydrationWarning lang="en">
       <head />
@@ -43,13 +46,16 @@ export default function RootLayout({
         )}
       >
         <Providers>
-          <div className="relative flex flex-col h-screen">
-            <TheHeader />
-            <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
-              {children}
-            </main>
-            <TheFooter />
-          </div>
+          <ModalProvider>
+            <div className="relative flex flex-col h-screen">
+              <TheHeader />
+              <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+                {children}
+              </main>
+              <TheFooter />
+            </div>
+          </ModalProvider>
+          {/* <AuthModal isOpen={isOpen} onOpenChange={onOpenChange} /> */}
         </Providers>
       </body>
     </html>

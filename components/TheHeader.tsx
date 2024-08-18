@@ -3,11 +3,13 @@ import React from "react";
 
 import TheNavbar from "./TheNavbar";
 
-const TheHeader = () => {
+
+
+const TheHeader: React.FC = () => {
   return (
-    <header>
-      <TheNavbar />
-    </header>
+    <>
+      <TheNavbar/>
+    </>
   );
 }
 

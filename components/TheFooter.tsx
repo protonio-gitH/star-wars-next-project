@@ -1,7 +1,7 @@
 import { Link } from "@nextui-org/link";
 import React from "react";
 
-const TheFooter = () => {
+const TheFooter: React.FC = () => {
   return (
     <footer className="w-full flex items-center justify-center py-3">
       <Link
