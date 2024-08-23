@@ -1,49 +1,72 @@
-import * as yup from "yup";
 import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useDispatch } from "react-redux";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  User,
+} from "firebase/auth";
+import { toast } from "react-toastify";
+import { FirebaseError } from "firebase/app";
 
 import {
   LoginFormData,
   RegisterFormData,
   UseFormSubmitHandleReturn,
 } from "@/types/formTypes";
+import { logSchema, regSchema } from "@/config/validationSchemas";
+import { setUser } from "@/store/slices/userSlice";
+import { useModal } from "@/components/ModalProvider";
 
-const regSchema = yup.object().shape({
-  username: yup.string().required("Username is required"),
-  email: yup.string().email("Invalid email").required("Email is required"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(6, "Password must be at least 6 characters"),
-});
+const handleAuthSuccess = async (
+  user: User,
+  dispatch: ReturnType<typeof useDispatch>,
+  reset: () => void,
+  onClose: () => void,
+) => {
+  onClose();
+  reset();
+  const token = await user.getIdToken();
 
-const logSchema = yup.object().shape({
-  username: yup.string().required("Username is required"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(6, "Password must be at least 6 characters"),
-});
+  dispatch(
+    setUser({
+      email: user.email,
+      id: user.uid,
+      token,
+    }),
+  );
+};
+
+const handleAuthError = (e: FirebaseError) => {
+  if (e.message === "Firebase: Error (auth/email-already-in-use).") {
+    toast.error("This email already use");
+  }
+};
 
 export const useLoginFormSubmitHandle =
   (): UseFormSubmitHandleReturn<LoginFormData> => {
-    // const isReg = type === "reg";
-    // const schema = isReg ? regSchema : logSchema;
-
     const {
       register,
       handleSubmit,
+      reset,
       formState: { errors },
     } = useForm<LoginFormData>({
       resolver: yupResolver(logSchema),
     });
 
+    const dispatch = useDispatch();
+    const { onClose } = useModal();
+    const auth = getAuth();
+
     const submit: SubmitHandler<LoginFormData> = (data) => {
-      console.log("Отправленные данные:", data);
+      signInWithEmailAndPassword(auth, data.email, data.password)
+        .then(({ user }) => handleAuthSuccess(user, dispatch, reset, onClose))
+        .catch(console.error);
     };
 
     const error: SubmitErrorHandler<LoginFormData> = (data) => {
-      console.log(data);
+      console.error("Form validation errors:", data);
     };
 
     return {
@@ -57,23 +80,30 @@ export const useLoginFormSubmitHandle =
 
 export const useRegFormSubmitHandle =
   (): UseFormSubmitHandleReturn<RegisterFormData> => {
-    //   const isReg = type === "reg";
-    //   const schema = isReg ? regSchema : logSchema;
-
     const {
       register,
       handleSubmit,
+      reset,
       formState: { errors },
     } = useForm<RegisterFormData>({
       resolver: yupResolver(regSchema),
     });
 
+    const dispatch = useDispatch();
+    const { onClose } = useModal();
+    const auth = getAuth();
+
     const submit: SubmitHandler<RegisterFormData> = (data) => {
-      console.log("Отправленные данные:", data);
+      createUserWithEmailAndPassword(auth, data.email, data.password)
+        .then(({ user }) => handleAuthSuccess(user, dispatch, reset, onClose))
+        .catch((e) => {
+          reset();
+          handleAuthError(e);
+        });
     };
 
     const error: SubmitErrorHandler<RegisterFormData> = (data) => {
-      console.log(data);
+      console.error("Form validation errors:", data);
     };
 
     return {

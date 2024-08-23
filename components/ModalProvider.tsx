@@ -12,17 +12,18 @@ const ModalContext = createContext<AuthProviderProps>({
   onOpenChange: () => {},
   type: "reg",
   setType: () => {},
+  onClose: () => {},
 });
 
 export const ModalProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [type, setType] = useState<TypeStrings>("reg");
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   return (
     <ModalContext.Provider
-      value={{ isOpen, onOpen, onOpenChange, type, setType }}
+      value={{ isOpen, onOpen, onOpenChange, type, setType, onClose }}
     >
       {children}
       <AuthModal isOpen={isOpen} type={type} onOpenChange={onOpenChange} />

@@ -1,4 +1,3 @@
-"use client";
 import React, { memo } from "react";
 import {
   Navbar,
@@ -8,22 +7,20 @@ import {
   Link,
   Button,
 } from "@nextui-org/react";
-import { usePathname } from "next/navigation";
-
-import { useModal } from "./ModalProvider";
 
 import { siteConfig } from "@/config/site";
 
-const TheNavbar: React.FC = () => {
-  const { onOpen, setType } = useModal();
-  const pathname = usePathname();
+interface NavbarProps {
+  isActive: (href: string) => boolean;
+  handlePress: (type: "login" | "reg" | "exit") => void;
+  isAuth: boolean;
+}
 
-  const isActive = (href: string) => pathname === href;
-  const pressFunction = (type: "login" | "reg") => {
-    setType(type);
-    onOpen();
-  };
-
+const TheNavbar: React.FC<NavbarProps> = ({
+  isActive,
+  handlePress,
+  isAuth,
+}) => {
   return (
     <Navbar>
       <NavbarBrand>
@@ -43,24 +40,34 @@ const TheNavbar: React.FC = () => {
           </NavbarItem>
         ))}
       </NavbarContent>
-      <NavbarContent justify="end">
-        <NavbarItem className="hidden lg:flex">
-          <Button as={Link} onPress={() => pressFunction("login")}>
-            Войти
-          </Button>
-        </NavbarItem>
-        <NavbarItem>
-          <Button
-            as={Link}
-            color="primary"
-            href="#"
-            variant="flat"
-            onPress={() => pressFunction("reg")}
-          >
-            Зарегистрироваться
-          </Button>
-        </NavbarItem>
-      </NavbarContent>
+      {!isAuth ? (
+        <NavbarContent justify="end">
+          <NavbarItem className="hidden lg:flex">
+            <Button as={Link} onPress={() => handlePress("login")}>
+              Войти
+            </Button>
+          </NavbarItem>
+          <NavbarItem>
+            <Button
+              as={Link}
+              color="primary"
+              href="#"
+              variant="flat"
+              onPress={() => handlePress("reg")}
+            >
+              Зарегистрироваться
+            </Button>
+          </NavbarItem>
+        </NavbarContent>
+      ) : (
+        <NavbarContent justify="end">
+          <NavbarItem className="hidden lg:flex">
+            <Button as={Link} onPress={() => handlePress("exit")}>
+              Выйти
+            </Button>
+          </NavbarItem>
+        </NavbarContent>
+      )}
     </Navbar>
   );
 };

@@ -11,14 +11,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ register, errors }) => {
         <Input
           isRequired
           className="max-w-l"
-          label="Username"
-          placeholder="Username"
-          type="text"
-          {...register("username")}
+          label="Email"
+          placeholder="Email"
+          type="email"
+          {...register("email")}
         />
-        {errors.username && (
+        {errors.email && (
           <span style={{ color: "red", fontSize: "0.8rem" }}>
-            {errors.username.message}
+            {errors.email.message}
           </span>
         )}
       </div>

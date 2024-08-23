@@ -6,13 +6,14 @@ import {
 } from "react-hook-form";
 
 export interface RegisterFormData {
-  username: string;
+  //   username: string;
   email: string;
   password: string;
+  confirmPassword: string;
 }
 
 export interface LoginFormData {
-  username: string;
+  email: string;
   password: string;
 }
 

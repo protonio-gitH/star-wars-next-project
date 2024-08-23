@@ -9,4 +9,5 @@ export interface AuthModalProps {
 export interface AuthProviderProps extends AuthModalProps {
   onOpen: () => void;
   setType: (arg: TypeStrings) => void;
+  onClose: () => void;
 }

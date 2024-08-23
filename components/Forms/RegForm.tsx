@@ -11,21 +11,6 @@ const RegForm: React.FC<RegFormProps> = ({ register, errors }) => {
         <Input
           isRequired
           className="max-w-l"
-          label="Username"
-          placeholder="Username"
-          type="text"
-          {...register("username")}
-        />
-        {errors.username && (
-          <span style={{ color: "red", fontSize: "0.8rem" }}>
-            {errors.username.message}
-          </span>
-        )}
-      </div>
-      <div>
-        <Input
-          isRequired
-          className="max-w-l"
           label="Email"
           placeholder="Email"
           type="email"
@@ -49,6 +34,21 @@ const RegForm: React.FC<RegFormProps> = ({ register, errors }) => {
         {errors.password && (
           <span style={{ color: "red", fontSize: "0.8rem" }}>
             {errors.password.message}
+          </span>
+        )}
+      </div>
+      <div>
+        <Input
+          isRequired
+          className="max-w-l"
+          label="Confirm password"
+          placeholder="Confirm password"
+          type="password"
+          {...register("confirmPassword")}
+        />
+        {errors.confirmPassword && (
+          <span style={{ color: "red", fontSize: "0.8rem" }}>
+            {errors.confirmPassword.message}
           </span>
         )}
       </div>

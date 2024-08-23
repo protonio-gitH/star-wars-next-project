@@ -50,7 +50,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
           }
         >
           <ModalContent>
-            {(onClose) => (
+            {() => (
               <>
                 <ModalHeader className="flex flex-col gap-1">
                   {type === "login" ? "Вход" : "Регистрация"}
