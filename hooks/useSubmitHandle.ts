@@ -1,6 +1,5 @@
 import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useDispatch } from "react-redux";
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -10,6 +9,8 @@ import {
 import { toast } from "react-toastify";
 import { FirebaseError } from "firebase/app";
 
+import { useAppDispatch } from "./useRedux";
+
 import {
   LoginFormData,
   RegisterFormData,
@@ -18,10 +19,11 @@ import {
 import { logSchema, regSchema } from "@/config/validationSchemas";
 import { setUser } from "@/store/slices/userSlice";
 import { useModal } from "@/components/ModalProvider";
+import { AppDispatch } from "@/types/dispatchTypes";
 
 const handleAuthSuccess = async (
   user: User,
-  dispatch: ReturnType<typeof useDispatch>,
+  dispatch: AppDispatch,
   reset: () => void,
   onClose: () => void,
 ) => {
@@ -40,7 +42,20 @@ const handleAuthSuccess = async (
 
 const handleAuthError = (e: FirebaseError) => {
   if (e.message === "Firebase: Error (auth/email-already-in-use).") {
-    toast.error("This email already use");
+    toast.error("This email is already use", {
+      autoClose: 1500,
+    });
+  } else if (e.message === "Firebase: Error (auth/invalid-credential).") {
+    toast.error("Incorrent login or password", {
+      autoClose: 1500,
+    });
+  } else if (
+    e.message ===
+    "Firebase: Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later. (auth/too-many-requests)."
+  ) {
+    toast.error("Many failed login attempts", {
+      autoClose: 1500,
+    });
   }
 };
 
@@ -55,14 +70,18 @@ export const useLoginFormSubmitHandle =
       resolver: yupResolver(logSchema),
     });
 
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const { onClose } = useModal();
     const auth = getAuth();
 
     const submit: SubmitHandler<LoginFormData> = (data) => {
       signInWithEmailAndPassword(auth, data.email, data.password)
         .then(({ user }) => handleAuthSuccess(user, dispatch, reset, onClose))
-        .catch(console.error);
+        .catch((e) => {
+          console.error(e.message);
+          reset();
+          handleAuthError(e);
+        });
     };
 
     const error: SubmitErrorHandler<LoginFormData> = (data) => {
@@ -89,7 +108,7 @@ export const useRegFormSubmitHandle =
       resolver: yupResolver(regSchema),
     });
 
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const { onClose } = useModal();
     const auth = getAuth();
 

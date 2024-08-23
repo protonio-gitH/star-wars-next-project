@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import { Metadata } from "next";
 import clsx from "clsx";
 import React from "react";
+import { ToastContainer } from "react-toastify";
 
 import { Providers } from "./providers";
 
@@ -34,8 +35,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
   return (
     <html suppressHydrationWarning lang="en">
       <head />
@@ -49,13 +48,13 @@ export default function RootLayout({
           <ModalProvider>
             <div className="relative flex flex-col h-screen">
               <TheHeader />
+              <ToastContainer />
               <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
                 {children}
               </main>
               <TheFooter />
             </div>
           </ModalProvider>
-          {/* <AuthModal isOpen={isOpen} onOpenChange={onOpenChange} /> */}
         </Providers>
       </body>
     </html>
