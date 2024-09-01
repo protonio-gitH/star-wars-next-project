@@ -43,18 +43,18 @@ const handleAuthSuccess = async (
 const handleAuthError = (e: FirebaseError) => {
   if (e.message === "Firebase: Error (auth/email-already-in-use).") {
     toast.error("This email is already use", {
-      autoClose: 1500,
+      autoClose: 2000,
     });
   } else if (e.message === "Firebase: Error (auth/invalid-credential).") {
     toast.error("Incorrent login or password", {
-      autoClose: 1500,
+      autoClose: 2000,
     });
   } else if (
     e.message ===
     "Firebase: Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later. (auth/too-many-requests)."
   ) {
     toast.error("Many failed login attempts", {
-      autoClose: 1500,
+      autoClose: 2000,
     });
   }
 };
