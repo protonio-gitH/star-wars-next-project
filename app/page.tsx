@@ -9,5 +9,5 @@ import InfiniteScroll from "@/components/InfiniteScroll";
 // import { GithubIcon } from "@/components/icons";
 
 export default function Home() {
-  return <InfiniteScroll />;
+  return <InfiniteScroll first={9} />;
 }

@@ -22,3 +22,7 @@ export interface GetPersonsVars {
   first: number;
   after: string;
 }
+
+export interface InfiniteScrollProps {
+  first: number;
+}

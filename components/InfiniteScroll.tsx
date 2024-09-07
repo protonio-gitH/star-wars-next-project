@@ -13,17 +13,23 @@ import {
 
 import client from "@/api/apolloclient";
 import { GET_PERSONS } from "@/api/people";
-import { GetPersonsData, GetPersonsVars, Person } from "@/types/apiTypes";
+import {
+  GetPersonsData,
+  GetPersonsVars,
+  InfiniteScrollProps,
+  Person,
+} from "@/types/apiTypes";
 
-const InfiniteScroll = () => {
+const InfiniteScroll: React.FC<InfiniteScrollProps> = ({ first }) => {
   const scrollEnd = useRef<HTMLDivElement>(null);
   const [listData, setListData] = useState<Person[]>([]);
-  const { loading, error, data, fetchMore } = useQuery<
+  const { loading, error, data, fetchMore, networkStatus } = useQuery<
     GetPersonsData,
     GetPersonsVars
   >(GET_PERSONS, {
-    variables: { first: 10, after: "" },
+    variables: { first: first, after: "" },
     client,
+    notifyOnNetworkStatusChange: true,
   });
 
   useEffect(() => {
@@ -37,14 +43,15 @@ const InfiniteScroll = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          console.log("Пользователь достиг конца контейнера или страницы");
           fetchMore({
             variables: {
-              first: 10, // Подгрузить следующие 10 элементов
-              after: data?.allPeople.pageInfo.endCursor, // Используйте `endCursor` для пагинации
+              first: first,
+              after: data?.allPeople.pageInfo.endCursor,
             },
             updateQuery: (prevResult, { fetchMoreResult }) => {
               if (!fetchMoreResult) return prevResult;
+              if (!fetchMoreResult.allPeople.pageInfo.hasNextPage)
+                return prevResult;
 
               return {
                 ...prevResult,
@@ -59,12 +66,11 @@ const InfiniteScroll = () => {
               };
             },
           });
-          // Здесь можно вызвать подгрузку данных или другие действия
         }
       },
       {
-        root: null, // Если `null`, то наблюдает за пересечением с viewport
-        threshold: 1.0, // Процент видимости элемента, который вызывает callback
+        root: null,
+        threshold: 1.0,
       },
     );
 
@@ -80,7 +86,7 @@ const InfiniteScroll = () => {
   }, [data, fetchMore]);
 
   if (error) return <p>Error: {error.message}</p>;
-  if (loading) {
+  if (loading && listData.length === 0) {
     return (
       <div className="flex justify-center items-center h-full">
         <Spinner size="lg" />
@@ -116,6 +122,11 @@ const InfiniteScroll = () => {
           </Card>
         ))}
       </div>
+      {networkStatus === 3 ? (
+        <div className="flex justify-center items-center m-3">
+          <Spinner size="md" />
+        </div>
+      ) : null}
       <div ref={scrollEnd} className="scroll-end" style={{ height: "1px" }} />
     </>
   );
