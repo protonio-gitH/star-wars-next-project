@@ -1,6 +1,5 @@
 "use client";
-import { useQuery } from "@apollo/client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, memo } from "react";
 import {
   Card,
   CardHeader,
@@ -11,79 +10,33 @@ import {
   Spinner,
 } from "@nextui-org/react";
 
-import client from "@/api/apolloclient";
-import { GET_PERSONS } from "@/api/people";
+import { InfiniteScrollProps } from "@/types/infiniteScrollTypes";
+import { useInfifniteScroll } from "@/hooks/useInfiniteScroll";
 import {
   GetPersonsData,
-  GetPersonsVars,
-  InfiniteScrollProps,
+  GetPlanetData,
   Person,
+  Planet,
 } from "@/types/apiTypes";
 
-const InfiniteScroll: React.FC<InfiniteScrollProps> = ({ first }) => {
+const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
+  first,
+  type,
+  gqlQuery,
+}) => {
   const scrollEnd = useRef<HTMLDivElement>(null);
-  const [listData, setListData] = useState<Person[]>([]);
-  const { loading, error, data, fetchMore, networkStatus } = useQuery<
-    GetPersonsData,
-    GetPersonsVars
-  >(GET_PERSONS, {
-    variables: { first: first, after: "" },
-    client,
-    notifyOnNetworkStatusChange: true,
-  });
+  //   const [listData, setListData] = useState<Person[]>([]);
+  const { listData, loading, error, networkStatus, refetch } =
+    useInfifniteScroll<Person | Planet, GetPersonsData | GetPlanetData>({
+      first,
+      scrollEnd,
+      type,
+      gqlQuery,
+    });
 
   useEffect(() => {
-    if (data) {
-      setListData((prev) => [...prev, ...data.allPeople.people]);
-    }
-  }, [data]);
-
-  useEffect(() => {
-    const target = scrollEnd.current;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          fetchMore({
-            variables: {
-              first: first,
-              after: data?.allPeople.pageInfo.endCursor,
-            },
-            updateQuery: (prevResult, { fetchMoreResult }) => {
-              if (!fetchMoreResult) return prevResult;
-              if (!fetchMoreResult.allPeople.pageInfo.hasNextPage)
-                return prevResult;
-
-              return {
-                ...prevResult,
-                allPeople: {
-                  ...prevResult.allPeople,
-                  people: [
-                    // ...prevResult.allPeople.people,
-                    ...fetchMoreResult.allPeople.people,
-                  ],
-                  pageInfo: fetchMoreResult.allPeople.pageInfo,
-                },
-              };
-            },
-          });
-        }
-      },
-      {
-        root: null,
-        threshold: 1.0,
-      },
-    );
-
-    if (target) {
-      observer.observe(target);
-    }
-
-    return () => {
-      if (target) {
-        observer.unobserve(target);
-      }
-    };
-  }, [data, fetchMore]);
+    refetch();
+  }, [refetch, first, type, gqlQuery]);
 
   if (error) return <p>Error: {error.message}</p>;
   if (loading && listData.length === 0) {
@@ -97,39 +50,46 @@ const InfiniteScroll: React.FC<InfiniteScrollProps> = ({ first }) => {
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {listData.map((people) => (
-          <Card key={people.name} className="max-w-[400px]">
-            <CardHeader className="flex gap-3">
-              <div className="flex flex-col">
-                <p className="text-md">{people.name}</p>
-                <p className="text-small text-default-500">{people.gender}</p>
-              </div>
-            </CardHeader>
-            <Divider />
-            <CardBody>
-              <p>Homeworld: {people.homeworld.name}</p>
-            </CardBody>
-            <Divider />
-            <CardFooter>
-              <Link
-                isExternal
-                showAnchorIcon
-                href="https://github.com/nextui-org/nextui"
-              >
-                Visit source code on GitHub.
-              </Link>
-            </CardFooter>
-          </Card>
-        ))}
+        {type === "people" &&
+          listData.map((people) => {
+            const person = people as Person;
+
+            return (
+              <Card key={person.name} className="max-w-[400px]">
+                <CardHeader className="flex gap-3">
+                  <div className="flex flex-col">
+                    <p className="text-md">{person.name}</p>
+                    <p className="text-small text-default-500">
+                      {person.gender}
+                    </p>
+                  </div>
+                </CardHeader>
+                <Divider />
+                <CardBody>
+                  <p>Homeworld: {person.homeworld.name}</p>
+                </CardBody>
+                <Divider />
+                <CardFooter>
+                  <Link
+                    isExternal
+                    showAnchorIcon
+                    href="https://github.com/nextui-org/nextui"
+                  >
+                    Visit source code on GitHub.
+                  </Link>
+                </CardFooter>
+              </Card>
+            );
+          })}
       </div>
       {networkStatus === 3 ? (
         <div className="flex justify-center items-center m-3">
           <Spinner size="md" />
         </div>
       ) : null}
-      <div ref={scrollEnd} className="scroll-end" style={{ height: "1px" }} />
+      <div ref={scrollEnd} className="scroll-end" style={{ height: "2px" }} />
     </>
   );
 };
 
-export default InfiniteScroll;
+export default memo(InfiniteScroll);

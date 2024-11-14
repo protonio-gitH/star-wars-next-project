@@ -8,6 +8,14 @@ export const siteConfig = {
       label: "Избранное",
       href: "/favourite",
     },
+    {
+      label: "Планеты",
+      href: "/planets",
+    },
+    {
+      label: "Персонажи",
+      href: "/persons",
+    },
   ],
   links: {
     github: "https://github.com/nextui-org/nextui",

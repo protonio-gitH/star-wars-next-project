@@ -7,6 +7,12 @@ export interface Person {
   };
 }
 
+export interface Planet {
+  id: string;
+  name: string;
+  population: string;
+}
+
 export interface GetPersonsData {
   allPeople: {
     people: Person[];
@@ -18,11 +24,18 @@ export interface GetPersonsData {
   };
 }
 
-export interface GetPersonsVars {
-  first: number;
-  after: string;
+export interface GetPlanetData {
+  allPlanets: {
+    planets: Planet[];
+    totalcount: string;
+    pageInfo: {
+      endCursor: string;
+      hasNextPage: boolean;
+    };
+  };
 }
 
-export interface InfiniteScrollProps {
+export interface GetInfiniteScollVars {
   first: number;
+  after: string;
 }

@@ -1,6 +1,4 @@
-import { gql } from "@apollo/client";
-
-export const GET_PERSONS = gql`
+export const GET_PERSONS = `
   query getPeople($first: Int, $after: String) {
     allPeople(first: $first, after: $after) {
       people {
